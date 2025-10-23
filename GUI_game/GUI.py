@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 """
 Created on Thu Oct 16 23:21:41 2025
 
@@ -9,8 +9,7 @@ Created on Thu Oct 16 23:21:41 2025
 import tkinter as tk
 from PIL import Image, ImageTk
 import os, random
-
-
+from tkinter import simpledialog
 
 
 class ImageLoader:
@@ -38,49 +37,64 @@ class ImageLoader:
 class GUI:
 
     def __init__(self):
-        
         self.height      = 1300
         self.width       = 2000
-        self.background  = "lightgray"
-        self.contour     = "black"
         self.root        = None  
         self.table_x     = 100
         self.table_y     = 50
         self.table_width = 1650
         self.table_height= 1170
+        self.player_names = []  # store player names
+        self.name_labels = []   # store Label widgets for easy update
 
     def main_window(self):
-        
         self.root = tk.Tk()
         self.root.title("Customizable Window")
         self.root.geometry(f"{self.width}x{self.height}")
-        self.root.configure(bg=self.background, highlightbackground=self.contour, highlightthickness=10)
+        self.root.configure(bg="lightgray", highlightbackground="black", highlightthickness=20)
         return self.root
 
     def draw_table_square(self):
-        
-        self.canvas = tk.Canvas(
-            self.root,
-            width=self.table_width,
-            height=self.table_height,
-            bg="green",
-            highlightthickness=0)
-        
-        self.canvas.place(x=self.table_x, y=self.table_y)
-        return self.canvas
-
+        canvas = tk.Canvas(self.root, width=self.table_width, height=self.table_height,
+                           bg="green", highlightthickness=0)
+        canvas.place(x=self.table_x, y=self.table_y)
+        return canvas
 
     def draw_black_square(self):
-        
-        self.canvas = tk.Canvas(
-            self.root,
-            width=self.table_width+40,
-            height=self.table_height+40,
-            bg="black",
-            highlightthickness=0)
-        
-        self.canvas.place(x=100-20, y=50-20)
-        return self.canvas
+        canvas = tk.Canvas(self.root, width=self.table_width + 40, height=self.table_height + 40, 
+                           bg="black", highlightthickness=0)
+        canvas.place(x=self.table_x - 20, y=self.table_y - 20)
+        return canvas
+
+
+    def ask_player_names(self, num_players=3):
+        self.player_names = []
+        for i in range(1, num_players + 1):
+            name = simpledialog.askstring("Player Name", f"Enter name for Player {i}:")
+            if not name:
+                name = f"Player {i}"
+            self.player_names.append(name)
+        return self.player_names
+
+
+    def display_player_names(self):
+        positions = [(0.2, 0.05), (0.8, 0.05), (0.9, 0.85)]  # relative positions for player names
+        # Clear previous labels
+        for lbl in self.name_labels:
+            lbl.destroy()
+        self.name_labels = []
+
+        for i, name in enumerate(self.player_names):
+            x_rel, y_rel = positions[i % len(positions)]
+            label = tk.Label(self.root, text=name, font=("Arial", 24), bg="green")
+            label.place(relx=x_rel, rely=y_rel, anchor="n")
+            self.name_labels.append(label)
+
+    def rotate_player_names(self):
+        if self.player_names:
+            # Rotate list by 1: first element goes to the end
+            self.player_names = self.player_names[1:] + [self.player_names[0]]
+            self.display_player_names()
 
 
 
@@ -292,7 +306,6 @@ class Display_player_cards:
         print(f"🖱️ You clicked on card: {card_name}")
 
 
-         
 
 
 
