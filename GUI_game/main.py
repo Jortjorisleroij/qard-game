@@ -16,16 +16,18 @@ def main():
     app.draw_black_square()
     app.draw_table_square()
     image_loader = ImageLoader(bg_color=(0, 128, 0))
+    app.ask_player_names()
+    app.display_player_names()
     Display_full_deck(root, image_loader, width=200, height=200)
     Display_first_card(root, image_loader, deck_x=0.1, deck_y=0.5, offset_x=0.3, width=150, height=200)
     buttons = Build_buttons(root)
     buttons.manage_buttons()
-
+    
 
     # the part that interacts with the backend.
     Display_player_decks(root, image_loader, offset_x=0.3, width=300, height=200, P1=8, P2=6)
     player_cards = Display_player_cards(root, image_loader, cards, clickables)
-
+    root.after(1000, lambda: app.rotate_player_names())
     # Start the main event loop
     root.mainloop()
 
