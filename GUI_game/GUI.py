@@ -19,15 +19,16 @@ class ImageLoader:
         self.cache = {}  # 🟢 cache: {(path, size): PhotoImage}
 
     def load_card_image(self, path, size):
+        size = tuple(size)  # ✅ make sure it’s always a tuple
         key = (path, size)
         if key in self.cache:
             return self.cache[key]
-
+    
         img = Image.open(path).resize(size, Image.LANCZOS)
         if img.mode in ("RGBA", "LA"):
             bg = Image.new("RGBA", img.size, self.bg_color)
             img = Image.alpha_composite(bg, img)
-
+    
         tk_img = ImageTk.PhotoImage(img.convert("RGB"))
         self.cache[key] = tk_img
         return tk_img
@@ -246,11 +247,12 @@ class Display_player_decks:
 
 class Display_player_cards:
     
-    def __init__(self, root, image_loader, card_array, width=150, height=200):
+    def __init__(self, root, image_loader, card_array, card_index, width=150, height=200):
         
         self.root = root
         self.image_loader = image_loader
         self.card_array = card_array
+        self.card_index = card_index
         self.width = width
         self.height = height
         self.card_loc = [(950,1100),(800,1100),(1100,1100),(950,880),(650,1100),
@@ -264,11 +266,6 @@ class Display_player_cards:
     def display_cards(self):
 
         for idx, card_name in enumerate(self.card_array):
-            
-            if idx >= len(self.card_loc):
-                print(f"⚠️ Skipping {card_name}: too many cards (max 16).")
-                break
-
             image_path = os.path.join("visuals", "mixed_cards", f"{card_name}.png")
             
             if not os.path.exists(image_path):
@@ -278,11 +275,23 @@ class Display_player_cards:
             x, y = self.card_loc[idx]
             tk_img = self.image_loader.load_card_image(image_path, (self.width, self.height))
             label = tk.Label(self.root, image=tk_img, bg="green", borderwidth=0, highlightthickness=0)
-            label.image = tk_img  # keep a reference
+            label.image = tk_img
             label.place(x=x, y=y, anchor="center")
             self.images.append(tk_img)
             self.labels.append(label)
             print(f"🂠 Displayed {card_name} at ({x}, {y})")
+
+            if idx < len(self.card_index) and self.card_index[idx] == 1:
+                label.bind("<Button-1>", lambda e, name=card_name: self.card_clicked(name))
+                label.bind("<Enter>", lambda e, lbl=label: lbl.config(cursor="hand2"))
+                label.bind("<Leave>", lambda e, lbl=label: lbl.config(cursor=""))  # restore normal cursor
+            else:
+                label.config(cursor="arrow")  # not clickable
+
+    def card_clicked(self, card_name):
+        print(f"🖱️ You clicked on card: {card_name}")
+
+
          
 
 
