@@ -208,8 +208,7 @@ class Display_full_deck:
 
 
 class Display_first_card:
-    
-    def __init__(self, root, image_loader, card_name="T_4", random=True):
+    def __init__(self, root, image_loader, card_name):
         
         self.root          = root
         self.card_name     = card_name
@@ -229,14 +228,9 @@ class Display_first_card:
         if self.image_label is not None:
             self.image_label.destroy()        
 
-        if random == True:
-            card_files = [f for f in os.listdir(os.path.join("visuals", "common_cards")) 
-                          if f.lower().endswith(".png")]
-            chosen_file = random.choice(card_files)
-            image_path = os.path.join(os.path.join("visuals", "common_cards"), chosen_file)
-        
+
         else:
-            image_path = os.path.join("visuals", "mixed_cards", f"{self.card_name}.png")
+            image_path = os.path.join("visuals", "common_cards", f"{self.card_name}.png")
 
         self.tk_img = self.image_loader.load_card_image(image_path, (self.custom_width, self.custom_height))
         self.image_label = tk.Label(self.root, image=self.tk_img, bg="green", borderwidth=0, highlightthickness=0)
