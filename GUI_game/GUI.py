@@ -7,8 +7,8 @@ Created on Thu Oct 16 23:21:41 2025
 
 
 import tkinter as tk
-from PIL import Image, ImageTk
 import os, random
+from PIL import Image, ImageTk
 from tkinter import simpledialog
 
 
@@ -196,27 +196,37 @@ class Display_full_deck:
 
 
 class Display_first_card:
-    def __init__(self, root, image_loader, deck_x=0.5, deck_y=0.5, offset_x=0.3, width=100, height=100):
-        self.root = root
-        self.image_loader = image_loader
-        self.image_label = None
-        self.tk_img = None  # 🟢 persistent reference
-        self.folder_path = os.path.join("visuals", "common_cards")
-        self.deck_x = deck_x
-        self.deck_y = deck_y
-        self.offset_x = offset_x
-        self.custom_width = width
-        self.custom_height = height
-        self.root.after(200, self.display_random_card)
+    def __init__(self, root, image_loader, card_name="T_4", random=True):
+        self.root          = root
+        self.card_name     = card_name
+        self.image_loader  = image_loader
+        self.image_label   = None
+        self.tk_img        = None  # 🟢 persistent reference
+        self.deck_x        = 0.5
+        self.deck_y        = 0.5
+        self.offset_x      = -0.1
+        self.custom_width  = 150
+        self.custom_height = 200
+        self.root.after(200, self.display_a_card)
 
-    def display_random_card(self):
-        card_files = [f for f in os.listdir(self.folder_path) if f.lower().endswith(".png")]
-        chosen_file = random.choice(card_files)
-        image_path = os.path.join(self.folder_path, chosen_file)
+
+    def display_a_card(self):
+
+        if self.image_label is not None:
+            self.image_label.destroy()        
+
+        if random == True:
+            card_files = [f for f in os.listdir(os.path.join("visuals", "common_cards")) 
+                          if f.lower().endswith(".png")]
+            chosen_file = random.choice(card_files)
+            image_path = os.path.join(os.path.join("visuals", "common_cards"), chosen_file)
+        
+        else:
+            image_path = os.path.join("visuals", "mixed_cards", f"{self.card_name}.png")
+
         self.tk_img = self.image_loader.load_card_image(image_path, (self.custom_width, self.custom_height))
         self.image_label = tk.Label(self.root, image=self.tk_img, bg="green", borderwidth=0, highlightthickness=0)
         self.image_label.place(relx=self.deck_x + self.offset_x, rely=self.deck_y, anchor="center")
-        print(f"🃏 Displayed random card: {chosen_file}")
 
 
 
