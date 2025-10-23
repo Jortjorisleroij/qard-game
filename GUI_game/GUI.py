@@ -13,12 +13,15 @@ from tkinter import simpledialog
 
 
 class ImageLoader:
+    
     def __init__(self, bg_color=(0, 128, 0)):
+        
         self.bg_color = bg_color
-        self.cache = {}  # 🟢 cache: {(path, size): PhotoImage}
+        self.cache = {}
 
     def load_card_image(self, path, size):
-        size = tuple(size)  # ✅ make sure it’s always a tuple
+        
+        size = tuple(size) 
         key = (path, size)
         if key in self.cache:
             return self.cache[key]
@@ -37,6 +40,7 @@ class ImageLoader:
 class GUI:
 
     def __init__(self):
+        
         self.height      = 1300
         self.width       = 2000
         self.root        = None  
@@ -48,6 +52,7 @@ class GUI:
         self.name_labels = []   # store Label widgets for easy update
 
     def main_window(self):
+        
         self.root = tk.Tk()
         self.root.title("Customizable Window")
         self.root.geometry(f"{self.width}x{self.height}")
@@ -55,12 +60,14 @@ class GUI:
         return self.root
 
     def draw_table_square(self):
+        
         canvas = tk.Canvas(self.root, width=self.table_width, height=self.table_height,
                            bg="green", highlightthickness=0)
         canvas.place(x=self.table_x, y=self.table_y)
         return canvas
 
     def draw_black_square(self):
+        
         canvas = tk.Canvas(self.root, width=self.table_width + 40, height=self.table_height + 40, 
                            bg="black", highlightthickness=0)
         canvas.place(x=self.table_x - 20, y=self.table_y - 20)
@@ -68,29 +75,36 @@ class GUI:
 
 
     def ask_player_names(self, num_players=3):
+        
         self.player_names = []
+        
         for i in range(1, num_players + 1):
             name = simpledialog.askstring("Player Name", f"Enter name for Player {i}:")
+            
             if not name:
                 name = f"Player {i}"
+                
             self.player_names.append(name)
         return self.player_names
 
 
     def display_player_names(self):
-        positions = [(0.2, 0.05), (0.8, 0.05), (0.9, 0.85)]  # relative positions for player names
-        # Clear previous labels
+        positions = [(0.2, 0.05), (0.8, 0.05), (0.9, 0.8)]
+
         for lbl in self.name_labels:
             lbl.destroy()
+            
         self.name_labels = []
 
         for i, name in enumerate(self.player_names):
+            
             x_rel, y_rel = positions[i % len(positions)]
             label = tk.Label(self.root, text=name, font=("Arial", 24), bg="green")
             label.place(relx=x_rel, rely=y_rel, anchor="n")
             self.name_labels.append(label)
 
     def rotate_player_names(self):
+        
         if self.player_names:
             # Rotate list by 1: first element goes to the end
             self.player_names = self.player_names[1:] + [self.player_names[0]]
@@ -140,11 +154,9 @@ class Build_buttons:
         if command is not None:
             
             def on_enter(e):
-                
                 canvas.itemconfig(rect, fill=hover_fill)
                 
             def on_leave(e):
-                
                 canvas.itemconfig(rect, fill=fill_color)
             
             canvas.tag_bind(rect , "<Enter>"   , on_enter)
@@ -170,7 +182,7 @@ class Build_buttons:
 
 class Display_full_deck:
     
-    def __init__(self, root, image_loader, width=100, height=100):
+    def __init__(self, root, image_loader, width=200, height=200):
         
         self.root         = root
         self.image_loader = image_loader
@@ -196,12 +208,14 @@ class Display_full_deck:
 
 
 class Display_first_card:
+    
     def __init__(self, root, image_loader, card_name="T_4", random=True):
+        
         self.root          = root
         self.card_name     = card_name
         self.image_loader  = image_loader
         self.image_label   = None
-        self.tk_img        = None  # 🟢 persistent reference
+        self.tk_img        = None
         self.deck_x        = 0.5
         self.deck_y        = 0.5
         self.offset_x      = -0.1
@@ -232,7 +246,8 @@ class Display_first_card:
 
 class Display_player_decks:
     
-    def __init__(self, root, image_loader, offset_x=0.1, width=100, height=100, P1=7, P2=7):
+    def __init__(self, root, image_loader, offset_x=0.3, width=300, height=200, P1=7, P2=7):
+        
         self.root           = root
         self.image_loader   = image_loader
         self.width          = width
@@ -253,10 +268,6 @@ class Display_player_decks:
     def display_deck(self, player, deck_number):
         
         image_path = os.path.join("visuals", "deck_images", f"deck_0{deck_number}.png")
-        if not os.path.exists(image_path):
-            print(f"⚠️ Missing image: {image_path}")
-            return
-
         tk_img      = self.image_loader.load_card_image(image_path, (self.width, self.height))
         relx, rely  = self.positions[player]
         label       = tk.Label(self.root, image=tk_img, bg="green", borderwidth=0, highlightthickness=0)
@@ -265,7 +276,6 @@ class Display_player_decks:
 
         self.images[player] = tk_img
         self.labels[player] = label
-        print(f"🂡 Displayed {player}: {image_path} at ({relx}, {rely})")
 
 
 
@@ -291,10 +301,6 @@ class Display_player_cards:
 
         for idx, card_name in enumerate(self.card_array):
             image_path = os.path.join("visuals", "mixed_cards", f"{card_name}.png")
-            
-            if not os.path.exists(image_path):
-                print(f"⚠️ Missing card image: {image_path}")
-                continue
 
             x, y = self.card_loc[idx]
             tk_img = self.image_loader.load_card_image(image_path, (self.width, self.height))
@@ -303,7 +309,6 @@ class Display_player_cards:
             label.place(x=x, y=y, anchor="center")
             self.images.append(tk_img)
             self.labels.append(label)
-            print(f"🂠 Displayed {card_name} at ({x}, {y})")
 
             if idx < len(self.card_index) and self.card_index[idx] == 1:
                 label.bind("<Button-1>", lambda e, name=card_name: self.card_clicked(name))
@@ -314,6 +319,7 @@ class Display_player_cards:
 
     def card_clicked(self, card_name):
         print(f"🖱️ You clicked on card: {card_name}")
+        Display_first_card(self.root, self.image_loader, card_name=card_name, random=False)
 
 
 
