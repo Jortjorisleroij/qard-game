@@ -274,10 +274,10 @@ class Display_player_decks:
 
 
 
+
 class Display_player_cards:
-    
-    def __init__(self, root, image_loader, card_array, card_index, width=150, height=200):
-        
+
+    def __init__(self, root, image_loader, card_array, card_index, width=150, height=200, on_card_click=None):
         self.root = root
         self.image_loader = image_loader
         self.card_array = card_array
@@ -290,13 +290,12 @@ class Display_player_cards:
                          (1400,880),(350,880),(1550,880)]
         self.images = []
         self.labels = []
+        self.on_card_click = on_card_click  # callback: function(card_name) -> bool/None
         self.display_cards()
 
     def display_cards(self):
-
         for idx, card_name in enumerate(self.card_array):
             image_path = os.path.join("visuals", "mixed_cards", f"{card_name}.png")
-
             x, y = self.card_loc[idx]
             tk_img = self.image_loader.load_card_image(image_path, (self.width, self.height))
             label = tk.Label(self.root, image=tk_img, bg="green", borderwidth=0, highlightthickness=0)
@@ -306,15 +305,27 @@ class Display_player_cards:
             self.labels.append(label)
 
             if idx < len(self.card_index) and self.card_index[idx] == 1:
-                label.bind("<Button-1>", lambda e, name=card_name: self.card_clicked(name))
+                # Use a bound method to avoid late-binding issues
+                label.bind("<Button-1>", lambda e, name=card_name: self._handle_click(name))
                 label.bind("<Enter>", lambda e, lbl=label: lbl.config(cursor="hand2"))
-                label.bind("<Leave>", lambda e, lbl=label: lbl.config(cursor=""))  # restore normal cursor
+                label.bind("<Leave>", lambda e, lbl=label: lbl.config(cursor=""))
             else:
-                label.config(cursor="arrow")  # not clickable
+                label.config(cursor="arrow")
 
-    def card_clicked(self, card_name):
-        print(f"🖱️ You clicked on card: {card_name}")
-        Display_first_card(self.root, self.image_loader, card_name=card_name, random=False)
+    def _handle_click(self, card_name):
+        # Call the game callback if provided. Expect True/False or None.
+        if callable(self.on_card_click):
+            result = self.on_card_click(card_name)
+            # Optionally react to success/failure. E.g. show played card on table when True:
+            if result is True:
+                Display_first_card(self.root, self.image_loader, card_name=card_name)
+            elif result is None:
+                # If game callback does not return a status, still show the card
+                Display_first_card(self.root, self.image_loader, card_name=card_name)
+        else:
+            # Fallback behavior
+            Display_first_card(self.root, self.image_loader, card_name=card_name)
+
 
 
 

@@ -64,6 +64,22 @@ class Game:
         for card in self.shuffled_deck:
             print(card)
 
+    def play_card(self, card_name, player):
+        """Remove card_name from player's hand and add to table.
+        Return True if successful, False if card not found."""
+        hand = self.hands.get(player)
+        if hand is None:
+            return False
+
+        if card_name in hand:
+            hand.remove(card_name)
+            self.table_cards.append(card_name)
+            print(f"Played {card_name} from {player} onto table.")
+            return True
+
+        print(f"Card {card_name} not in {player} hand.")
+        return False
+
 
 if __name__ == "__main__":
     game = Game()

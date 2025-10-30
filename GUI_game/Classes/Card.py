@@ -52,21 +52,21 @@ Function that accepts the card currently on the pile and the current players car
 and generates a binary code for clickables.
 """
 class Create_binary_code:
-    def __init__(self, pile_card, player_cards):
-        self.pile_card = pile_card
-        self.player_cards = player_cards
+    def __init__(self, table_deck, player_hand):
+        self.table_card = table_deck
+        self.player_hand = player_hand
         self.binarycode = []
         self.check_card_fits()
         
     def check_card_fits(self):
         """Check which player cards are compatible and classify them."""
-        for card in self.player_cards:
+        for card in self.player_hand:
             
-            if card.startswith(self.pile_card[0]):
+            if card.startswith(self.table_card[0]):
                 self.binarycode.append(1)
-                print(f"{card} is compatible with {self.pile_card}")
+                #print(f"{card} is compatible with {self.table_card}")
 
-            elif card[2] == self.pile_card[2]:
+            elif card[2] == self.table_card[2]:
                 self.binarycode.append(1)
 
             elif card == "super":
@@ -75,14 +75,14 @@ class Create_binary_code:
             else:
                 self.binarycode.append(0)
                 
-        print("\nBinary code:", self.binarycode)
+        #print("\nBinary code:", self.binarycode)
 
 """
 example use
 """
-#pile = "T_4"
-#player_cards = ["T_2", "C_3", "X_4", "super", "R_4", "Z_1"]
-#game = Create_binary_code(pile, player_cards)
+#table = "T_4"
+#player_hand = ["T_2", "C_3", "X_4", "super", "R_4", "Z_1"]
+#game = Create_binary_code(table, hand)
 
 
 
@@ -92,7 +92,8 @@ class Card_compatibility:
         self.Common_or_power()
     
     def Common_or_power(self):
-        #delete pop(self.card_name) from player pack.
+        #delete pop(self.card_name) from player hand.
+
         
         
         if len(self.card_name) == 3 and self.card_name[1] == "_":

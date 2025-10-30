@@ -1,13 +1,14 @@
+import time
+
 from GUI_game.Classes import Player
 from GUI_game.Classes.Game import Game
+from GUI_game.Classes.Card import Create_binary_code, Card_compatibility
 from GUI_game.Classes.Player import get_player_hand
 from GUI import (GUI, ImageLoader, Display_full_deck, Display_first_card,
                       Build_buttons, Display_player_decks, Display_player_cards)
 
-# Example card pack
-clickables = [1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0]
-
 players = 1  # connect with names later
+# python
 def Initialize_start_game():
     # Initialize Game
     game = Game()
@@ -16,7 +17,6 @@ def Initialize_start_game():
     game.init_and_shuffle_deck()
     game.deal_cards(3, 7)
     face_up_card = game.table()
-
 
     # Initialize GUI
     app = GUI()
@@ -31,16 +31,14 @@ def Initialize_start_game():
     buttons = Build_buttons(root)
     buttons.manage_buttons()
 
+    # add a flag the GUI can toggle to advance the turn (start held)
+    root.advance_turn = False
+
     # test print
     print(face_up_card)
     # Return the game instance so callers can access game.players
     return game, app, root, image_loader
 
-
-
-
-# This part of the main should probably be completely handled by another script. so the back-end.
-import time
 
 def update_game():
     game, app, root, image_loader = Initialize_start_game()
@@ -48,12 +46,14 @@ def update_game():
     # use an index to rotate through the players list
     current_player_idx = 0
     game_over = False
-    tick_delay = 0.1  # seconds between turns
+    tick_delay = 0.1  # seconds between UI updates
 
     # Display player decks and cards (example values kept)
     Display_player_decks(root, image_loader, P1=8, P2=6)
 
-    # simple turn loop: rotate to next player and check for zero-card win
+    table_card = game.table()
+
+    # simple turn loop: do NOT auto-advance; wait for root.advance_turn to become True
     while not game_over and getattr(root, "winfo_exists", lambda: True)():
         try:
             root.update_idletasks()
@@ -64,25 +64,28 @@ def update_game():
 
         # current player by index
         current_player = game.players[current_player_idx]
-        current_player_deck = getattr(current_player, "hand", [])
-        # show 1-based player and display current player hand
-        display_player_number = current_player_idx + 1
-        print(f"Current player: {display_player_number}, Deck: {current_player_deck}")
-        Display_player_cards(root, image_loader, current_player_deck, clickables)
+        current_player_hand = getattr(current_player, "hand", [])
 
+        # build the binary code
+        checker = Create_binary_code(table_card, current_player_hand)
+        clickables = checker.binarycode  # list of 0/1 indicating playable cards
+        # Display current player's cards with clickables
+        Display_player_cards(root, image_loader, current_player_hand, clickables)
+        # test print
+        # print("Table:", table_card, "Current Hand:", current_player_hand, "Clickables:", clickables)
 
+        #game.play_card(current_player_hand, current_player)
 
-        # check win condition: any player with zero cards
-        if game.players[current_player_idx].hand == 0:
+        # correct win condition check (length of hand)
+        if len(current_player_hand) == 0:
             game_over = True
             winner_id = current_player_idx
             break
 
-        if game_over:
-            break
-
-        # move to next player
-        current_player_idx = (current_player_idx + 1) % len(game.players)
+        # only advance to next player when GUI sets root.advance_turn = True
+        if getattr(root, "advance_turn", False):
+            root.advance_turn = False
+            current_player_idx = (current_player_idx + 1) % len(game.players)
 
         time.sleep(tick_delay)
 
@@ -93,6 +96,7 @@ def update_game():
         root.destroy()
     except Exception:
         pass
+
 
 
 
