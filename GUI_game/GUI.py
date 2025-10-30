@@ -230,11 +230,12 @@ class Display_first_card:
 
 
         else:
-            image_path = os.path.join("visuals", "common_cards", f"{self.card_name}.png")
+            image_path = os.path.join("visuals", "mixed_cards", f"{self.card_name}.png")
 
         self.tk_img = self.image_loader.load_card_image(image_path, (self.custom_width, self.custom_height))
         self.image_label = tk.Label(self.root, image=self.tk_img, bg="green", borderwidth=0, highlightthickness=0)
         self.image_label.place(relx=self.deck_x + self.offset_x, rely=self.deck_y, anchor="center")
+
 
 
 
