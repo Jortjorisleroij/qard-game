@@ -1,7 +1,7 @@
 from GUI_game.Classes import Player
 from GUI_game.Classes.Game import Game
 from GUI_game.Classes.Player import get_player_hand
-from GUI_game.GUI import (GUI, ImageLoader, Display_full_deck, Display_first_card,
+from GUI import (GUI, ImageLoader, Display_full_deck, Display_first_card,
                       Build_buttons, Display_player_decks, Display_player_cards)
 
 # Example card pack
@@ -9,7 +9,7 @@ clickables = [1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0]
 
 players = 1  # connect with names later
 def Initialize_start_game():
-    # Initialize Deck
+    # Initialize Game
     game = Game()
 
     # Initialize deck and deal cards
@@ -40,82 +40,60 @@ def Initialize_start_game():
 
 
 # This part of the main should probably be completely handled by another script. so the back-end.
+import time
+
 def update_game():
     game, app, root, image_loader = Initialize_start_game()
-    current_player_deck = get_player_hand(game.players, 3)
-    # Display player decks and cards
+
+    # use an index to rotate through the players list
+    current_player_idx = 0
+    game_over = False
+    tick_delay = 0.1  # seconds between turns
+
+    # Display player decks and cards (example values kept)
     Display_player_decks(root, image_loader, P1=8, P2=6)
 
-    player_cards = Display_player_cards(root, image_loader, current_player_deck, clickables)
+    # simple turn loop: rotate to next player and check for zero-card win
+    while not game_over and getattr(root, "winfo_exists", lambda: True)():
+        try:
+            root.update_idletasks()
+            root.update()
+        except Exception:
+            # window closed or Tk error -> exit loop
+            break
 
-    # Example: rotate names after 1 second
-    # root.after(1000, lambda: app.rotate_player_names())
-
-
-    # # main pseudo-game loop
-    # while not game_over and getattr(root, "winfo_exists", lambda: True)():
-    #     # 1) GUI event processing (keeps the window responsive)
-    #     try:
-    #         root.update_idletasks()
-    #         root.update()
-    #     except Exception:
-    #         # window closed or Tk error -> exit loop
-    #         break
-    #
-    #     # 2) Read input / user actions
-    #     # placeholder: check input queues, button states or clickables
-    #     # e.g., clicked_card = app.poll_clicks()  # not implemented here
-    #
-    #     # 3) Determine current player's available cards
-    #     try:
-    #         hand = get_player_hand(game.players, current_player)
-    #     except Exception:
-    #         hand = []  # defensive fallback
-    #
-    #     # 4) Game logic placeholder
-    #     # - validate playable cards
-    #     # - if playable: apply move, update game state (remove from hand, add to table)
-    #     # - else: draw from deck or pass
-    #     # Example (pseudo):
-    #     # playable = find_playable_cards(hand, game.table_cards)
-    #     # if playable:
-    #     #     chosen = playable[0]
-    #     #     game.play_card(current_player, chosen)
-    #     # else:
-    #     #     game.draw_for_player(current_player)
-    #
-    #     # 5) Update GUI displays for player decks and table
-    #
-    #     # 6) End-of-turn housekeeping
-    #     # rotate to next player (hide and unhide hands as needed)
-    #     current_player = current_player + 1
-    #
-    #     # 7) Check win condition(s)
-    #     # Example: if any player has zero cards -> game_over = True
-    #     for p in game.players:
-    #         if len(p.hand) == 0:
-    #             game_over = True
-    #             winner_id = p.id
-    #             break
-    #
-    #     # 8) small delay to avoid tight loop; GUI remains responsive due to updates above
-    #     time.sleep(tick_delay)
-    #
-    # # loop exit: final cleanup and optional end-of-game display
-    # try:
-    #     if game_over:
-    #         print(f"Game over. Winner: player {winner_id}")
-    #         # display a simple end screen or dialog
-    #         # app.show_game_over(winner_id)  # placeholder
-    # finally:
-    #     # ensure Tk window closes cleanly
-    #     try:
-    #         root.destroy()
-    #     except Exception:
-    #         pass
+        # current player by index
+        current_player = game.players[current_player_idx]
+        current_player_deck = getattr(current_player, "hand", [])
+        # show 1-based player and display current player hand
+        display_player_number = current_player_idx + 1
+        print(f"Current player: {display_player_number}, Deck: {current_player_deck}")
+        Display_player_cards(root, image_loader, current_player_deck, clickables)
 
 
-    root.mainloop()
+
+        # check win condition: any player with zero cards
+        if game.players[current_player_idx].hand == 0:
+            game_over = True
+            winner_id = current_player_idx
+            break
+
+        if game_over:
+            break
+
+        # move to next player
+        current_player_idx = (current_player_idx + 1) % len(game.players)
+
+        time.sleep(tick_delay)
+
+    if game_over:
+        print(f"Game over. Winner: player {winner_id}")
+
+    try:
+        root.destroy()
+    except Exception:
+        pass
+
 
 
 if __name__ == "__main__":
