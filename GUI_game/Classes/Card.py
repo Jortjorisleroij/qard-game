@@ -1,4 +1,10 @@
-﻿# Special names
+import sys, os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+from GUI import(GUI, ImageLoader, Display_full_deck, Display_first_card,
+                Build_buttons, Display_player_decks, Display_player_cards)
+
+
+# Special names
 CRYOSTAT = "cr"
 ENTANGLEMENT = "en"
 SPIN = "sp"
@@ -38,6 +44,26 @@ class Card:
             return f"{self.rank}_{self.suit}"
         else:
             return f"{self.special}"
+
+
+class Card_compatibility:
+    def __init__(self, card_name):
+        self.card_name = card_name
+        
+    
+    def Common_or_power(self):
+        if len(self.card_name) == 3 and self.card_name[1] == "_":
+            self.Play_Common_card()
+        else:
+            self.Play_power_card()
+        
+    
+    def Play_Common_card(self):
+        Display_first_card(self.root, self.image_loader, card_name=self.card_name)
+    
+    def Play_power_card(self):
+        print("need to figure out what to do depending on card")
+
 
 
 # List of tuples: (variable_name, filename)
