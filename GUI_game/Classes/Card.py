@@ -92,16 +92,19 @@ class Card_compatibility:
         
     
     def Common_or_power(self):
+        #delete pop(self.card_name) from player pack.
+        
+        
         if len(self.card_name) == 3 and self.card_name[1] == "_":
-            self.Play_Common_card()
+            Display_first_card(self.root, self.image_loader, card_name=self.card_name)
+            
         else:
             self.Play_power_card()
         
-    def Play_Common_card(self):
-        Display_first_card(self.root, self.image_loader, card_name=self.card_name)
     
     def Play_power_card(self):
         print("need to figure out what to do depending on card")
+
 
 
 
