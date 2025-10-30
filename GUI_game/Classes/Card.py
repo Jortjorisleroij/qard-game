@@ -46,6 +46,46 @@ class Card:
             return f"{self.special}"
 
 
+
+"""
+Function that accepts the card currently on the pile and the current players cards.
+and generates a binary code for clickables.
+"""
+class Create_binary_code:
+    def __init__(self, pile_card, player_cards):
+        self.pile_card = pile_card
+        self.player_cards = player_cards
+        self.binarycode = []
+        self.check_card_fits()
+        
+    def check_card_fits(self):
+        """Check which player cards are compatible and classify them."""
+        for card in self.player_cards:
+            
+            if card.startswith(self.pile_card[0]):
+                self.binarycode.append(1)
+                print(f"{card} is compatible with {self.pile_card}")
+
+            elif card[2] == self.pile_card[2]:
+                self.binarycode.append(1)
+
+            elif card == "super":
+                self.binarycode.append(1)
+
+            else:
+                self.binarycode.append(0)
+                
+        print("\nBinary code:", self.binarycode)
+
+"""
+example use
+"""
+#pile = "T_4"
+#player_cards = ["T_2", "C_3", "X_4", "super", "R_4", "Z_1"]
+#game = Create_binary_code(pile, player_cards)
+
+
+
 class Card_compatibility:
     def __init__(self, card_name):
         self.card_name = card_name
@@ -57,7 +97,6 @@ class Card_compatibility:
         else:
             self.Play_power_card()
         
-    
     def Play_Common_card(self):
         Display_first_card(self.root, self.image_loader, card_name=self.card_name)
     
