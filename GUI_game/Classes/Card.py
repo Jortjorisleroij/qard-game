@@ -89,7 +89,7 @@ example use
 class Card_compatibility:
     def __init__(self, card_name):
         self.card_name = card_name
-        
+        self.Common_or_power()
     
     def Common_or_power(self):
         #delete pop(self.card_name) from player pack.
