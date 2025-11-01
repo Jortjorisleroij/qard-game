@@ -1,8 +1,36 @@
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Created on Thu Oct 16 23:21:41 2025
 
 @author: jortj
+
+This module provides a set of GUI classes for a card game interface using Tkinter and Pillow (PIL). 
+It includes classes for image loading and caching, creating the main game window, drawing table 
+elements, displaying card decks and player cards, and building interactive buttons.
+
+Classes
+--------
+ImageLoader
+    Handles image loading, resizing, and caching of card images.
+
+GUI
+    Creates and manages the main game window, player labels, and table visuals.
+
+Build_buttons
+    Provides methods to create and manage stylized buttons with hover effects.
+
+Display_full_deck
+    Displays an interactive full deck image on the game table.
+
+Display_first_card
+    Displays the first card drawn from the deck on the table.
+
+Display_player_decks
+    Displays deck images representing two players' card stacks.
+
+Display_player_cards
+    Displays individual cards in a player's hand and handles click interactions.
 """
 
 
@@ -13,13 +41,46 @@ from tkinter import simpledialog
 
 
 class ImageLoader:
+    """
+    Loads and caches card images for use in Tkinter.
+
+    Attributes
+    ----------
+    bg_color : tuple
+        Background color (R, G, B) used to fill transparent regions.
+    cache : dict
+        Dictionary used to store cached images to prevent redundant loading.
+    """
     
     def __init__(self, bg_color=(0, 128, 0)):
+        """
+        Initialize the ImageLoader with a default background color.
+
+        Parameters
+        ----------
+        bg_color : tuple, optional
+            RGB tuple for the background color, by default (0, 128, 0).
+        """
         
         self.bg_color = bg_color
         self.cache = {}
 
     def load_card_image(self, path, size):
+        """
+        Load and resize an image, returning a Tkinter-compatible PhotoImage.
+
+        Parameters
+        ----------
+        path : str
+            Path to the image file.
+        size : tuple of int
+            Desired (width, height) of the image.
+
+        Returns
+        -------
+        ImageTk.PhotoImage
+            The processed and cached image ready for Tkinter display.
+        """
         
         size = tuple(size) 
         key = (path, size)
@@ -38,8 +99,14 @@ class ImageLoader:
 
 
 class GUI:
-
+    """
+    Handles the creation and management of the main game window and player UI elements.
+    """
+    
     def __init__(self):
+        """
+        Initialize GUI parameters, including window size, table position, and player data.
+        """
         
         self.height      = 1300
         self.width       = 2000
@@ -52,6 +119,14 @@ class GUI:
         self.name_labels = []   # store Label widgets for easy update
 
     def main_window(self):
+        """
+        Create and return the main Tkinter window.
+
+        Returns
+        -------
+        tk.Tk
+            The root Tkinter window object.
+        """
         
         self.root = tk.Tk()
         self.root.title("Customizable Window")
@@ -60,6 +135,14 @@ class GUI:
         return self.root
 
     def draw_table_square(self):
+        """
+        Draw the green table area on the game window.
+
+        Returns
+        -------
+        tk.Canvas
+            The canvas representing the table surface.
+        """
         
         canvas = tk.Canvas(self.root, width=self.table_width, height=self.table_height,
                            bg="green", highlightthickness=0)
@@ -67,6 +150,14 @@ class GUI:
         return canvas
 
     def draw_black_square(self):
+        """
+        Draw a black border around the table area.
+
+        Returns
+        -------
+        tk.Canvas
+            The canvas representing the black border.
+        """
         
         canvas = tk.Canvas(self.root, width=self.table_width + 40, height=self.table_height + 40, 
                            bg="black", highlightthickness=0)
@@ -75,6 +166,19 @@ class GUI:
 
 
     def ask_player_names(self, num_players=3):
+        """
+        Prompt the user to enter player names using dialog boxes.
+
+        Parameters
+        ----------
+        num_players : int, optional
+            Number of players to ask for, by default 3.
+
+        Returns
+        -------
+        list of str
+            A list of player names entered by the user.
+        """
         
         self.player_names = []
         
@@ -89,6 +193,10 @@ class GUI:
 
 
     def display_player_names(self):
+        """
+        Display the player names around the table using Tkinter labels.
+        """
+        
         positions = [(0.2, 0.05), (0.8, 0.05), (0.9, 0.8)]
 
         for lbl in self.name_labels:
@@ -104,6 +212,9 @@ class GUI:
             self.name_labels.append(label)
 
     def rotate_player_names(self):
+        """
+        Rotate player names clockwise and update their display.
+        """
         
         if self.player_names:
             # Rotate list by 1: first element goes to the end
@@ -113,8 +224,19 @@ class GUI:
 
 
 class Build_buttons:
+    """
+    Provides methods to create interactive buttons with rounded edges and hover effects.
+    """
     
     def __init__(self, root):
+        """
+        Initialize the button builder with a Tkinter root and default styling.
+
+        Parameters
+        ----------
+        root : tk.Tk
+            The main Tkinter window or frame where buttons will be placed.
+        """
         
         self.root        = root
         self.color       = "orange"
@@ -123,6 +245,9 @@ class Build_buttons:
         
         
     def manage_buttons(self):
+        """
+        Automatically create all buttons defined as methods starting with 'button_'.
+        """
         
         for attr in dir(self):
             
@@ -131,6 +256,24 @@ class Build_buttons:
 
         
     def create_rounded_button(self, x, y, w, h, text, command=None, bg_color=None, hover_color=None):
+        """
+        Create a rounded rectangular button with text and hover behavior.
+
+        Parameters
+        ----------
+        x, y : int
+            Position of the button on the window.
+        w, h : int
+            Width and height of the button.
+        text : str
+            Label text displayed on the button.
+        command : callable, optional
+            Function to execute when the button is clicked.
+        bg_color : str, optional
+            Button background color.
+        hover_color : str, optional
+            Button color when hovered.
+        """
         
         radius = 15
         canvas = tk.Canvas(self.root, width=w, height=h, highlightthickness=0, bg=self.root["bg"])
@@ -140,6 +283,7 @@ class Build_buttons:
 
         # Draw rounded rectangle
         def round_rect(x1, y1, x2, y2, r, **kwargs):
+            """Draw a rounded rectangle on the canvas."""
             
             points = [x1+r, y1, x1+r, y1, x2-r, y1, x2-r, y1, x2, y1, x2, y1+r,
                       x2, y1+r, x2, y2-r, x2, y2-r, x2, y2, x2-r, y2, x2-r, y2,
@@ -181,8 +325,23 @@ class Build_buttons:
 
 
 class Display_full_deck:
+    """
+    Displays the full deck image in the game window and handles click events.
+    """
     
     def __init__(self, root, image_loader, width=200, height=200):
+        """
+        Initialize the full deck display.
+
+        Parameters
+        ----------
+        root : tk.Tk
+            The main window.
+        image_loader : ImageLoader
+            Instance used to load and cache images.
+        width, height : int
+            Dimensions of the deck image.
+        """
         
         self.root         = root
         self.image_loader = image_loader
@@ -193,6 +352,10 @@ class Display_full_deck:
         self.root.after(100, self.display_image)
 
     def display_image(self):
+        """
+        Display the deck image centered on the table.
+        """
+        
         tk_img = self.image_loader.load_card_image(self.image_path, 
                                                    (self.width, self.height))
         self.image_label = tk.Label(self.root, image=tk_img, bg="green", 
@@ -208,7 +371,23 @@ class Display_full_deck:
 
 
 class Display_first_card:
+    """
+    Displays the first drawn card from the deck at a fixed position on the table.
+    """
+    
     def __init__(self, root, image_loader, card_name):
+        """
+        Initialize the card display.
+
+        Parameters
+        ----------
+        root : tk.Tk
+            Main window.
+        image_loader : ImageLoader
+            Image loading utility.
+        card_name : str
+            Name of the card image file (without extension).
+        """
         
         self.root          = root
         self.card_name     = card_name
@@ -224,7 +403,10 @@ class Display_first_card:
 
 
     def display_a_card(self):
-
+        """
+        Display the selected card image on the table.
+        """
+        
         if self.image_label is not None:
             self.image_label.destroy()        
 
@@ -240,8 +422,28 @@ class Display_first_card:
 
 
 class Display_player_decks:
+    """
+    Displays deck images representing two players' stacks on the table.
+    """
+    
     
     def __init__(self, root, image_loader, offset_x=0.3, width=300, height=200, P1=7, P2=7):
+        """
+        Initialize and display both player decks.
+
+        Parameters
+        ----------
+        root : tk.Tk
+            The main window.
+        image_loader : ImageLoader
+            Image loader for caching and rendering.
+        offset_x : float
+            Horizontal offset between player decks.
+        width, height : int
+            Dimensions of deck images.
+        P1, P2 : int
+            Deck identifiers for player 1 and 2.
+        """
         
         self.root           = root
         self.image_loader   = image_loader
@@ -261,6 +463,16 @@ class Display_player_decks:
         self.display_deck("P2", self.P2)
 
     def display_deck(self, player, deck_number):
+        """
+        Display a specific player's deck image.
+
+        Parameters
+        ----------
+        player : str
+            Player identifier ("P1" or "P2").
+        deck_number : int
+            Deck image number.
+        """
         
         image_path = os.path.join("visuals", "deck_images", f"deck_0{deck_number}.png")
         tk_img      = self.image_loader.load_card_image(image_path, (self.width, self.height))
@@ -276,8 +488,30 @@ class Display_player_decks:
 
 
 class Display_player_cards:
+    """
+    Displays a player's hand of cards and allows click interactions.
+    """
 
     def __init__(self, root, image_loader, card_array, card_index, width=150, height=200, on_card_click=None):
+        """
+        Initialize the player card display.
+
+        Parameters
+        ----------
+        root : tk.Tk
+            The main window.
+        image_loader : ImageLoader
+            Utility for loading card images.
+        card_array : list of str
+            List of card names to display.
+        card_index : list of int
+            Indicators for clickable cards (1 for active, 0 for inactive).
+        width, height : int
+            Dimensions of card images.
+        on_card_click : callable, optional
+            Callback function executed when a card is clicked.
+        """
+        
         self.root = root
         self.image_loader = image_loader
         self.card_array = card_array
@@ -294,6 +528,10 @@ class Display_player_cards:
         self.display_cards()
 
     def display_cards(self):
+        """
+        Display all cards in the player's hand and bind click events if enabled.
+        """
+        
         for idx, card_name in enumerate(self.card_array):
             image_path = os.path.join("visuals", "mixed_cards", f"{card_name}.png")
             x, y = self.card_loc[idx]
@@ -313,17 +551,24 @@ class Display_player_cards:
                 label.config(cursor="arrow")
 
     def _handle_click(self, card_name):
-        # Call the game callback if provided. Expect True/False or None.
+        """
+        Handle click events on a player's card.
+
+        Parameters
+        ----------
+        card_name : str
+            The name of the clicked card.
+        """
+        
         if callable(self.on_card_click):
             result = self.on_card_click(card_name)
-            # Optionally react to success/failure. E.g. show played card on table when True:
+        
             if result is True:
                 Display_first_card(self.root, self.image_loader, card_name=card_name)
             elif result is None:
-                # If game callback does not return a status, still show the card
+    
                 Display_first_card(self.root, self.image_loader, card_name=card_name)
         else:
-            # Fallback behavior
             Display_first_card(self.root, self.image_loader, card_name=card_name)
 
 
